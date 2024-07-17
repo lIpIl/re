@@ -8,7 +8,7 @@ import base64
 app = Flask(__name__)
 
 # YOLOv5 모델 로드
-model = torch.hub.load('ultralytics/yolov5', 'yolov5s', pretrained=True)
+model = torch.hub.load('./', 'custom', path='yolov5s.pt', source='local')
 
 @app.route('/')
 def index():
