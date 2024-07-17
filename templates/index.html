@@ -1,0 +1,44 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Real-Time Object Detection</title>
+</head>
+<body>
+    <h1>Real-Time Object Detection</h1>
+    <video id="video" width="640" height="480" autoplay></video>
+    <canvas id="canvas" width="640" height="480" style="display:none;"></canvas>
+    <img id="result" width="640" height="480">
+    <script>
+        const video = document.getElementById('video');
+        const canvas = document.getElementById('canvas');
+        const context = canvas.getContext('2d');
+        const resultImg = document.getElementById('result');
+
+        navigator.mediaDevices.getUserMedia({ video: true })
+            .then(stream => {
+                video.srcObject = stream;
+            })
+            .catch(error => console.error('Stream error:', error));
+
+        function sendFrame() {
+            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+            canvas.toBlob(blob => {
+                let formData = new FormData();
+                formData.append('image', blob);
+                fetch('/detect', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    resultImg.src = 'data:image/jpeg;base64,' + data.image;
+                });
+            }, 'image/jpeg');
+        }
+
+        setInterval(sendFrame, 5000);
+    </script>
+</body>
+</html>
